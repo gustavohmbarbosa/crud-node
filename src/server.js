@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 const express = require('express');
 const app = express();
 const port = 3000
@@ -13,13 +15,13 @@ app.use(express.urlencoded({ extended: true }));
 
 const db = require("./models/Model");
 db.mongoose
-  .connect(db.url, {
+  .connect(process.env.DB_URL, {
     useNewUrlParser: true,
     useUnifiedTopology: true
   })
   .catch(error => {
-    console.log("Cannot connect to the database!", error)
-    process.exit()
+    console.log("Cannot connect to the database!", error);
+    process.exit();
   })
 
 require("./routes")(app);

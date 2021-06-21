@@ -1,72 +1,96 @@
 const db = require("../models/Model");
 const User = db.users;
 
-exports.create = async (req, res) => {
+exports.create = async (request, response) => {
   try {
-    const user = await User.create(req.body);
+    const user = await User.create(request.body);
 
-    return res.send({
+    return response.send({
       data: user,
       message: "User created"
     });
   } catch (error) {
     if (error.name === 'ValidationError') {
-      return res.status(422).send({
+      return response.status(422).send({
         message: error._message,
         errors: error.errors
       });
     } else {
-      return res.status(500).send({
+      return response.status(500).send({
         message: error.message || "Some error occurred while creating the User."
       });
     }
   }
 };
 
-exports.findAll = async (req, res) => {
+exports.findAll = async (request, response) => {
   try {
     const data = await User.find();
 
-    return res.send(data);
+    return response.send(data);
   } catch (error) {
-    return res.status(500).send({
-      message: error.message || "Some error occurred while creating the User."
+    return response.status(500).send({
+      message: error.message || "Could not find users"
     });
   }
 };
 
-exports.findOne = async (req, res) => {
-  const id = req.params.id;
+exports.findOne = async (request, response) => {
+  const id = request.params.id;
 
   try {
-    const data = await User.findById(id);
+    const user = await User.findById(id);
 
-    if (!data) {
-      return res.status(404).send({
+    if (!user) {
+      return response.status(404).send({
         message: `Not found user with id ${id}`
       });
     } else {
-      return res.send(data);
+      return response.send(user);
     }
   } catch (error) {
-    return res.status(500).send({
-      message: error.message || "Some error occurred while creating the User."
+    return response.status(500).send({
+      message: `Could not find User with id ${id}`
     });
   }
 };
 
-exports.update = async (req, res) => {
-  const id = req.params.id;
+exports.update = async (request, response) => {
+  const id = request.params.id;
   
   try {
-    const data = await User.findById(id);
+    const user = await User.findByIdAndUpdate(id, request.body, { useFindAndModify: false });
+
+    if (!user) {
+      return response.status(404).send({
+        message: `Not found user with id ${id}`
+      });
+    } else {
+      return response.send({ message: "User updated" });
+    }
   } catch (error) {
-    return res.status(500).send({
-      message: error.message || "Some error occurred while creating the User."
+    return response.status(500).send({
+      message: `Error updating User with id ${id}`
     });
   }
 };
 
-exports.delete = async (req, res) => {
+exports.delete = async (request, response) => {
+  const id = request.params.id;
+  
+  try {
+    const user = await User.findByIdAndRemove(id);
 
+    if (!user) {
+      return response.status(404).send({
+        message: `Not found user with id ${id}`
+      });
+    } else {
+      return response.send({ message: "User deleted" });
+    }
+  } catch (error) {
+    return response.status(500).send({
+      message: `Could not delete User with id ${id}`
+    });
+  }
 };
