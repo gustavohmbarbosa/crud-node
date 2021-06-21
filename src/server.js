@@ -1,28 +1,29 @@
-const express = require('express')
-const app = express()
-const cors = require('cors')
+const express = require('express');
+const app = express();
 const port = 3000
 
-app.use(cors())
+const cors = require('cors');
+const corsOptions = {
+  origin: `http://localhost:${port}`
+};
+app.use(cors(corsOptions));
 
-app.get('/', (req, res) => {
-    res.send('Hello World!')
-})
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
-const db = require("./config/db")
+const db = require("./models/Model");
 db.mongoose
   .connect(db.url, {
     useNewUrlParser: true,
     useUnifiedTopology: true
-  })
-  .then(() => {
-    console.log("Connected to the database!")
   })
   .catch(error => {
     console.log("Cannot connect to the database!", error)
     process.exit()
   })
 
+require("./routes")(app);
+
 app.listen(port, () => {
-    console.log(`app listening at http://localhost:${port}`)
+    console.log(`app listening at http://localhost:${port}`);
 })
